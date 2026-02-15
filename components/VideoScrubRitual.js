@@ -30,7 +30,7 @@ const phases = [
         body: "From the sacred Champaca groves of Southern India, each stick carries the luminescence of a thousand temple flames. Hand-rolled under the waning moon using techniques preserved for twelve generations.",
         accent: "var(--accent-gold)",
         accentRaw: "hsla(38, 85%, 55%,",
-        audioSrc: "/SIddheshwari Sounds Festive 1.wav",
+        audioSrc: "/audio/Forest-Ambient-_1_.ogg",
     },
     {
         id: "ingredient-provenance",
@@ -41,7 +41,7 @@ const phases = [
         body: "Wild-harvested Mysore sandalwood. Organic rose attar from Kannauj. Vetiver roots from the banks of the Kaveri. Every ingredient ethically sourced, sun-dried, and ground by hand in granite mortars.",
         accent: "var(--accent-green)",
         accentRaw: "hsla(165, 55%, 45%,",
-        audioSrc: "/Siddheshwari Sounds (Lore).wav",
+        audioSrc: "/audio/Forest-Ambient-_2_.ogg",
     },
     {
         id: "computational-healing",
@@ -52,7 +52,7 @@ const phases = [
         body: "Each blend is tuned to Solfeggio frequencies through our Resonance Mapping Engine. The molecular structure of every aromatic compound is harmonized to 528Hz — the Love Frequency.",
         accent: "var(--accent-violet)",
         accentRaw: "hsla(270, 45%, 60%,",
-        audioSrc: "/Siddheshwari Sounds Elevation 1.wav",
+        audioSrc: "/audio/Forest-Ambient-_3_.ogg",
     },
 ];
 
