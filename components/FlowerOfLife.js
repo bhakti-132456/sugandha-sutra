@@ -12,7 +12,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import "./GlowShader"; // Registers <sacredGlowMaterial />
 
-export default function FlowerOfLife({ intensity = 0.5, glowColor }) {
+export default function FlowerOfLife({ intensity = 0.5, glowColor, minimal = false }) {
     const groupRef = useRef();
     const materialRef = useRef();
     const mousePos = useRef({ x: 0, y: 0 });
@@ -69,11 +69,12 @@ export default function FlowerOfLife({ intensity = 0.5, glowColor }) {
         smoothPos.current.x += (mousePos.current.x - smoothPos.current.x) * 0.02;
         smoothPos.current.y += (mousePos.current.y - smoothPos.current.y) * 0.02;
 
-        // Apply anti-gravity drift
+        // Apply anti-gravity drift — subtler if minimal
+        const rotationFactor = minimal ? 0.05 : 0.3;
         groupRef.current.rotation.x =
-            smoothPos.current.y * 0.3 + Math.sin(time * 0.3) * 0.05;
+            smoothPos.current.y * rotationFactor + Math.sin(time * 0.3) * 0.05;
         groupRef.current.rotation.y =
-            smoothPos.current.x * 0.3 + Math.cos(time * 0.2) * 0.05;
+            smoothPos.current.x * rotationFactor + Math.cos(time * 0.2) * 0.05;
         groupRef.current.rotation.z = Math.sin(time * 0.15) * 0.02;
 
         // Gentle levitation bob
@@ -94,7 +95,7 @@ export default function FlowerOfLife({ intensity = 0.5, glowColor }) {
             {/* Flower of Life — concentric torus rings */}
             {circlePositions.map((pos, i) => (
                 <mesh key={i} position={[pos[0], pos[1], 0]}>
-                    <torusGeometry args={[0.55, 0.008, 16, 64]} />
+                    <torusGeometry args={[0.55, minimal ? 0.004 : 0.008, 16, 64]} />
                     <sacredGlowMaterial
                         ref={i === 0 ? materialRef : undefined}
                         transparent
@@ -105,30 +106,21 @@ export default function FlowerOfLife({ intensity = 0.5, glowColor }) {
                 </mesh>
             ))}
 
-            {/* Central icosphere for volumetric glow */}
-            <mesh>
-                <icosahedronGeometry args={[0.35, 2]} />
-                <meshBasicMaterial
-                    color={new THREE.Color(...glowRGB)}
-                    transparent
-                    opacity={0.02 + intensity * 0.04}
-                    wireframe
-                    depthWrite={false}
-                    blending={THREE.AdditiveBlending}
-                />
-            </mesh>
+            {/* Central component (icosphere) removed as it was jarring */}
 
-            {/* Outer boundary ring */}
-            <mesh>
-                <torusGeometry args={[1.65, 0.004, 8, 128]} />
-                <meshBasicMaterial
-                    color={new THREE.Color(...glowRGB)}
-                    transparent
-                    opacity={0.08}
-                    depthWrite={false}
-                    blending={THREE.AdditiveBlending}
-                />
-            </mesh>
+            {/* Outer boundary ring — only show if not minimal for cleaner look */}
+            {!minimal && (
+                <mesh>
+                    <torusGeometry args={[1.65, 0.004, 8, 128]} />
+                    <meshBasicMaterial
+                        color={new THREE.Color(...glowRGB)}
+                        transparent
+                        opacity={0.08}
+                        depthWrite={false}
+                        blending={THREE.AdditiveBlending}
+                    />
+                </mesh>
+            )}
         </group>
     );
 }

@@ -53,11 +53,11 @@ export default function SmokeTrail({ count = 80 }) {
         uniform vec3 uColor;
         varying float vLife;
         void main() {
-          // Circular gradient for soft smoke effect
           float dist = distance(gl_PointCoord, vec2(0.5));
           if (dist > 0.5) discard;
           
-          float alpha = smoothstep(0.5, 0.0, dist) * (1.0 - vLife) * 0.15;
+          // Realistic smoke falloff and grey tones
+          float alpha = smoothstep(0.5, 0.1, dist) * (1.0 - vLife) * 0.12;
           gl_FragColor = vec4(uColor, alpha);
         }
       `
@@ -70,6 +70,7 @@ export default function SmokeTrail({ count = 80 }) {
         if (!pointsRef.current) return;
         material.uniforms.uTime.value = state.clock.elapsedTime;
 
+        // Current cursor position in 3D world coordinates
         const x = (mouse.x * viewport.width) / 2;
         const y = (mouse.y * viewport.height) / 2;
         const currentMouse = new THREE.Vector2(x, y);
@@ -80,18 +81,20 @@ export default function SmokeTrail({ count = 80 }) {
 
         for (let i = 0; i < count; i++) {
             if (life[i] >= 0) {
-                life[i] += delta * 0.4; // Slightly slower life cycle for grace
+                life[i] += delta * 0.45; // Refined dissipation speed
                 if (life[i] > 1.0) life[i] = -1.0;
 
-                // Tighten drift spread drastically
+                // Drift: particles move slightly upward/randomly as they fade
                 const idx = i * 3;
-                positions[idx] += particles.vel[i * 2] * delta * 0.4;
-                positions[idx + 1] += particles.vel[i * 2 + 1] * delta * 0.4;
+                positions[idx] += particles.vel[i * 2] * delta * 0.3;
+                positions[idx + 1] += (particles.vel[i * 2 + 1] + 0.1) * delta * 0.3; // Slight upward drift
             }
         }
 
-        // Spawn new particle if mouse moved enough - higher threshold for thinner trail
-        if (currentMouse.distanceTo(lastPos.current) > 0.1) {
+        // Spawn logic — higher precision spawn
+        // We spawn even on small movements to ensure it "follows" the pointer explicitly
+        const dist = currentMouse.distanceTo(lastPos.current);
+        if (dist > 0.02) {
             // Find inactive particle
             for (let i = 0; i < count; i++) {
                 if (life[i] < 0) {
@@ -101,8 +104,8 @@ export default function SmokeTrail({ count = 80 }) {
                     positions[i * 3 + 2] = 0;
 
                     // Muted random drift velocity
-                    particles.vel[i * 2] = (Math.random() - 0.5) * 0.15;
-                    particles.vel[i * 2 + 1] = (Math.random() - 0.5) * 0.15;
+                    particles.vel[i * 2] = (Math.random() - 0.5) * 0.1;
+                    particles.vel[i * 2 + 1] = (Math.random() - 0.5) * 0.1;
                     break;
                 }
             }

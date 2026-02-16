@@ -12,6 +12,7 @@ import { useState } from "react";
 import { gsap } from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import CelestialMandala from "./CelestialMandala";
+import MandalaCursor from "./MandalaCursor";
 
 gsap.registerPlugin(ScrollToPlugin);
 
@@ -103,8 +104,12 @@ export default function HeroSection() {
                     justifyContent: "center",
                     overflow: "hidden",
                     padding: "var(--space-section)",
+                    cursor: "none", // Hide system cursor
                 }}
             >
+                {/* Custom Interactive Mandala Cursor */}
+                <MandalaCursor />
+
                 {/* Background ambience layers */}
                 <div
                     aria-hidden="true"

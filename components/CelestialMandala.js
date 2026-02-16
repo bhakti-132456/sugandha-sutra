@@ -53,7 +53,7 @@ export function CelestialScene({
                         floatIntensity={minimal ? 0.2 : 0.5}
                         floatingRange={[-0.1, 0.1]}
                     >
-                        <FlowerOfLife intensity={intensity} glowColor={glowColor} />
+                        <FlowerOfLife intensity={intensity} glowColor={glowColor} minimal={minimal} />
                     </Float>
 
                     {/* Hide background heavy assets in minimal mode */}
@@ -107,8 +107,19 @@ export default function CelestialMandala({ minimal = false }) {
             inset: 0,
             zIndex: 0,
             pointerEvents: "none",
-            background: "radial-gradient(circle at center, #08080a 0%, #000 100%)"
+            background: "radial-gradient(circle at center, #08080a 0%, #000 100%)",
         }}>
+            {/* Subtle Noise Texture Overlay */}
+            <div style={{
+                position: "absolute",
+                inset: 0,
+                opacity: 0.15,
+                backgroundImage: `url("https://grains.y78.io/noise.png")`, // Minimal grain texture
+                backgroundRepeat: "repeat",
+                mixBlendMode: "overlay",
+                pointerEvents: "none"
+            }} />
+
             <Canvas
                 gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
                 dpr={[1, 1.5]}
