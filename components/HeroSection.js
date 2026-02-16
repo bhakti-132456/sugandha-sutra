@@ -158,7 +158,7 @@ export default function HeroSection() {
                 </div>
 
                 {/* Celestial Mandala Interaction Layer */}
-                <CelestialMandala />
+                <CelestialMandala minimal />
 
                 {/* Hero content — anti-grid, organic placement */}
                 <motion.div
