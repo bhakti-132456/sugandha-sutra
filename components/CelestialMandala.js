@@ -69,13 +69,11 @@ export function CelestialScene({
             </group>
 
             <EffectComposer disableNormalPass>
-                {!minimal && (
-                    <DepthOfField
-                        focusDistance={0.01}
-                        focalLength={0.2}
-                        bokehScale={3}
-                    />
-                )}
+                <DepthOfField
+                    focusDistance={0.01}
+                    focalLength={minimal ? 0.05 : 0.2} // Much more blur in minimal mode
+                    bokehScale={minimal ? 8 : 3} // Increased bokeh for soft background feel
+                />
                 <Bloom
                     luminanceThreshold={minimal ? 0.4 : 0.2}
                     mipmapBlur
@@ -93,22 +91,8 @@ export function CelestialScene({
             {/* Dark Readability Overlay Mesh — subtle vignette for text */}
             <mesh position={[0, 0, 2.5]}>
                 <planeGeometry args={[viewport.width * 2, viewport.height * 2]} />
-                <meshBasicMaterial color="#000" transparent opacity={minimal ? 0.5 : 0.35} />
+                <meshBasicMaterial color="#000" transparent opacity={minimal ? 0.6 : 0.35} />
             </mesh>
-
-            {/* Dynamic Glow Orbs for additional depth — subtle hints */}
-            {!minimal && (
-                <>
-                    <mesh position={[-5, 2, -15]} scale={5}>
-                        <sphereGeometry args={[1, 32, 32]} />
-                        <meshBasicMaterial color="#4a1e9e" transparent opacity={0.05} />
-                    </mesh>
-                    <mesh position={[5, -3, -12]} scale={6}>
-                        <sphereGeometry args={[1, 32, 32]} />
-                        <meshBasicMaterial color="#886100" transparent opacity={0.05} />
-                    </mesh>
-                </>
-            )}
         </>
     );
 }

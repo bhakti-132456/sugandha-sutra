@@ -34,7 +34,7 @@ export default function SmokeTrail({ count = 80 }) {
             depthWrite: false,
             blending: THREE.AdditiveBlending,
             uniforms: {
-                uColor: { value: new THREE.Color("#d4a644") }, // Sacred Gold
+                uColor: { value: new THREE.Color("#666666") }, // Sophisticated Muted Grey
                 uTime: { value: 0 },
             },
             vertexShader: `
@@ -43,8 +43,8 @@ export default function SmokeTrail({ count = 80 }) {
         void main() {
           vLife = life;
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-          // Scale based on life: starts small, grows, then fades
-          float size = 50.0 * (1.0 - life) * (1.0 - abs(life - 0.5) * 2.0);
+          // Thinner trail: reduced base size
+          float size = 25.0 * (1.0 - life) * (1.0 - abs(life - 0.5) * 2.0);
           gl_PointSize = size * (300.0 / -mvPosition.z);
           gl_Position = projectionMatrix * mvPosition;
         }
@@ -80,18 +80,18 @@ export default function SmokeTrail({ count = 80 }) {
 
         for (let i = 0; i < count; i++) {
             if (life[i] >= 0) {
-                life[i] += delta * 0.5; // Particle speed
-                if (life[i] > 1.0) life[i] = -1.0; // Kill particle
+                life[i] += delta * 0.4; // Slightly slower life cycle for grace
+                if (life[i] > 1.0) life[i] = -1.0;
 
-                // Add subtle drift
+                // Tighten drift spread drastically
                 const idx = i * 3;
-                positions[idx] += particles.vel[i * 2] * delta;
-                positions[idx + 1] += particles.vel[i * 2 + 1] * delta;
+                positions[idx] += particles.vel[i * 2] * delta * 0.4;
+                positions[idx + 1] += particles.vel[i * 2 + 1] * delta * 0.4;
             }
         }
 
-        // Spawn new particle if mouse moved enough
-        if (currentMouse.distanceTo(lastPos.current) > 0.05) {
+        // Spawn new particle if mouse moved enough - higher threshold for thinner trail
+        if (currentMouse.distanceTo(lastPos.current) > 0.1) {
             // Find inactive particle
             for (let i = 0; i < count; i++) {
                 if (life[i] < 0) {
@@ -100,9 +100,9 @@ export default function SmokeTrail({ count = 80 }) {
                     positions[i * 3 + 1] = y;
                     positions[i * 3 + 2] = 0;
 
-                    // Random drift velocity
-                    particles.vel[i * 2] = (Math.random() - 0.5) * 0.2;
-                    particles.vel[i * 2 + 1] = (Math.random() - 0.5) * 0.2;
+                    // Muted random drift velocity
+                    particles.vel[i * 2] = (Math.random() - 0.5) * 0.15;
+                    particles.vel[i * 2 + 1] = (Math.random() - 0.5) * 0.15;
                     break;
                 }
             }
