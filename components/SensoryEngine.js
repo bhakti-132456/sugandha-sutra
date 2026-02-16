@@ -11,7 +11,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
-import FlowerOfLife from "./FlowerOfLife";
+import { CelestialScene } from "./CelestialMandala";
 import { startSacredTone, getAmplitude, SOLFEGGIO_MAP } from "@/lib/audio";
 import { getRitualBySku } from "@/lib/ritualData";
 
@@ -50,34 +50,11 @@ function SensoryScene({ audioActive, sku }) {
     }, [audioActive]);
 
     return (
-        <>
-            <color attach="background" args={["#0a0a0a"]} />
-            <fog attach="fog" args={["#0a0a0a", 5, 15]} />
-
-            {/* Ambient light for base visibility */}
-            <ambientLight intensity={0.15} />
-
-            {/* Directional light with sacred gold tint */}
-            <directionalLight
-                position={[5, 5, 5]}
-                intensity={0.3}
-                color="#d4a644"
-            />
-
-            <Suspense fallback={null}>
-                <FlowerOfLife intensity={intensity} glowColor={glowColor} />
-            </Suspense>
-
-            {/* Post-processing bloom for HDR glow */}
-            <EffectComposer>
-                <Bloom
-                    luminanceThreshold={0.1}
-                    luminanceSmoothing={0.9}
-                    intensity={1.2 + intensity * 0.5}
-                    radius={0.8}
-                />
-            </EffectComposer>
-        </>
+        <CelestialScene
+            intensity={intensity}
+            glowColor={glowColor}
+            showSmoke={false} // Cleaner for ritual focus
+        />
     );
 }
 

@@ -10,7 +10,17 @@ import StarfieldParticles from "./StarfieldParticles";
 import NebulaBackground from "./NebulaShader";
 import SmokeTrail from "./SmokeTrail";
 
-function Scene() {
+/**
+ * CelestialScene — The core 3D scene elements.
+ * Exported separately so it can be used inside different Canvases (Hero vs Ritual).
+ */
+export function CelestialScene({
+    intensity = 0.5,
+    glowColor,
+    nebulaOpacity = 0.25,
+    showSmoke = true,
+    rotationSpeed = 1
+}) {
     const { mouse, viewport } = useThree();
     const groupRef = useRef();
 
@@ -21,6 +31,9 @@ function Scene() {
         if (groupRef.current) {
             groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, mouse.y * 0.2, 0.1);
             groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, mouse.x * 0.2, 0.1);
+
+            // Subtle constant rotation or scroll-driven rotation can be added here
+            groupRef.current.rotation.z += 0.001 * rotationSpeed;
         }
     });
 
@@ -38,12 +51,12 @@ function Scene() {
                         floatIntensity={0.5}
                         floatingRange={[-0.2, 0.2]}
                     >
-                        <FlowerOfLife intensity={0.8} />
+                        <FlowerOfLife intensity={intensity} glowColor={glowColor} />
                     </Float>
 
                     <StarfieldParticles count={3000} />
                     <NebulaBackground />
-                    <SmokeTrail count={50} />
+                    {showSmoke && <SmokeTrail count={50} />}
                 </Suspense>
             </group>
 
@@ -56,17 +69,17 @@ function Scene() {
                 <Bloom
                     luminanceThreshold={0.2}
                     mipmapBlur
-                    intensity={1.2}
+                    intensity={1.2 + intensity * 0.4}
                     radius={0.4}
                 />
                 <Noise opacity={0.05} />
                 <Scanline opacity={0.03} />
             </EffectComposer>
 
-            {/* Dark Readability Overlay Mesh */}
-            <mesh position={[0, 0, 2]}>
+            {/* Dark Readability Overlay Mesh — subtle vignette for text */}
+            <mesh position={[0, 0, 2.5]}>
                 <planeGeometry args={[viewport.width * 2, viewport.height * 2]} />
-                <meshBasicMaterial color="#000" transparent opacity={0.4} />
+                <meshBasicMaterial color="#000" transparent opacity={0.35} />
             </mesh>
 
             {/* Dynamic Glow Orbs for additional depth */}
@@ -82,6 +95,9 @@ function Scene() {
     );
 }
 
+/**
+ * CelestialMandala — The Hero implementation with its own Canvas.
+ */
 export default function CelestialMandala() {
     return (
         <div style={{
@@ -95,7 +111,7 @@ export default function CelestialMandala() {
                 gl={{ antialias: true, alpha: true }}
                 dpr={[1, 2]}
             >
-                <Scene />
+                <CelestialScene intensity={0.5} />
             </Canvas>
         </div>
     );

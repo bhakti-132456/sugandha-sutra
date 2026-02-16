@@ -3,6 +3,8 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { motion, useScroll, useVelocity, useSpring, useTransform } from "framer-motion";
+import { Canvas } from "@react-three/fiber";
+import { CelestialScene } from "@/components/CelestialMandala";
 import { getRitualBySku } from "@/lib/ritualData";
 
 export default function RitualPlayPage() {
@@ -112,41 +114,28 @@ export default function RitualPlayPage() {
                     zIndex: 0,
                 }}
             >
-                {/* 1. Mandala Layer */}
-                <motion.div
+                {/* 1. Mandala Layer — 3D Celestial Experience */}
+                <div
                     style={{
                         position: "absolute",
-                        width: "80vh",
-                        height: "80vh",
-                        rotate: rotation, // Spins based on scroll
-                        opacity: 0.15,
-                        filter: "blur(1px)",
+                        inset: 0,
+                        zIndex: -1,
+                        opacity: 0.6,
                     }}
                 >
-                    {/* Simple Geometric Mandala SVG */}
-                    <svg viewBox="0 0 100 100" fill="none" stroke={ritual.accentColor || "var(--accent-gold)"} strokeWidth="0.5">
-                        <circle cx="50" cy="50" r="48" opacity="0.5" />
-                        <circle cx="50" cy="50" r="38" opacity="0.3" />
-                        <circle cx="50" cy="50" r="28" opacity="0.2" />
-                        {[...Array(12)].map((_, i) => (
-                            <path
-                                key={i}
-                                d="M50 50 L50 2"
-                                transform={`rotate(${i * 30} 50 50)`}
-                                opacity="0.4"
-                            />
-                        ))}
-                        {[...Array(8)].map((_, i) => (
-                            <rect
-                                key={i}
-                                x="45" y="5" width="10" height="10"
-                                transform={`rotate(${i * 45} 50 50)`}
-                                strokeWidth="0.2"
-                                opacity="0.6"
-                            />
-                        ))}
-                    </svg>
-                </motion.div>
+                    <Canvas
+                        camera={{ position: [0, 0, 5], fov: 50 }}
+                        gl={{ antialias: true, alpha: true }}
+                        dpr={[1, 2]}
+                    >
+                        <CelestialScene
+                            intensity={0.4}
+                            glowColor={ritual.glowColor || [0.886, 0.651, 0.196]}
+                            showSmoke={false}
+                            rotationSpeed={smoothVelocity.get() * 0.05} // Connect scroll velocity to 3D rotation
+                        />
+                    </Canvas>
+                </div>
 
                 {/* 2. Product Glow Layer */}
                 <div
