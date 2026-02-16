@@ -10,7 +10,6 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { CelestialScene } from "./CelestialMandala";
 import { startSacredTone, getAmplitude, SOLFEGGIO_MAP } from "@/lib/audio";
 import { getRitualBySku } from "@/lib/ritualData";
