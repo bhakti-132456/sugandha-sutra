@@ -157,14 +157,16 @@ export default function VideoScrubRitual() {
 
         contextRef.current = canvas.getContext("2d", { alpha: false });
 
-        // High-DPI Canvas Scaling
+        // High-DPI Canvas Setup
         const resizeCanvas = () => {
             const dpr = window.devicePixelRatio || 1;
             canvas.width = window.innerWidth * dpr;
             canvas.height = window.innerHeight * dpr;
             canvas.style.width = `${window.innerWidth}px`;
             canvas.style.height = `${window.innerHeight}px`;
-            contextRef.current.scale(dpr, dpr);
+            // We do NOT use ctx.scale here because we calculate 
+            // exact physical pixel positions in the render loop 
+            // to ensure perfect 'cover' behavior on all displays.
         };
 
         window.addEventListener("resize", resizeCanvas);
