@@ -70,7 +70,9 @@ export default function VideoScrubRitual() {
 
     // Smooth Scrub Persistence
     const virtualPlayhead = useRef(0);
+    const smoothPlayhead = useRef(0); // For interpolation
     const lastPaintedTime = useRef(-1);
+    const isSeeking = useRef(false);
 
     // Audio Integration
     const audioRefs = useRef([]);
@@ -90,46 +92,58 @@ export default function VideoScrubRitual() {
         const canvas = canvasRef.current;
         const ctx = contextRef.current;
 
-        if (!video || !canvas || !ctx) return;
+        if (!video || !canvas || !ctx || !video.duration) return;
 
-        // Decouple scroll from paint: seek to virtual playhead
-        const targetTime = virtualPlayhead.current * video.duration;
+        // 1. Interpolate playhead for buttery smoothness
+        // We use a simple lerp to follow the scroll progress smoothly
+        const lerpFactor = 0.1;
+        smoothPlayhead.current += (virtualPlayhead.current - smoothPlayhead.current) * lerpFactor;
 
-        // Reverse seek buffer optimization: 
-        // Browsers struggle with back-stepping exactly, so we apply a tiny epsilon
-        if (targetTime < video.currentTime) {
-            video.currentTime = targetTime - 0.001;
-        } else {
-            video.currentTime = targetTime;
+        const targetTime = smoothPlayhead.current * video.duration;
+
+        // 2. Performance Guard: Only seek if not already seeking
+        // and if the time difference is significant enough (e.g. > 1/120s)
+        const timeDiff = Math.abs(targetTime - video.currentTime);
+
+        if (!video.seeking && timeDiff > 0.008) {
+            // Use fastSeek if available (Safari/Firefox) for lower latency
+            if (video.fastSeek) {
+                video.fastSeek(targetTime);
+            } else {
+                video.currentTime = targetTime;
+            }
         }
 
-        // Only draw if the frame has actually changed
-        if (video.currentTime !== lastPaintedTime.current) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Cover mode logic for canvas
+        // 3. Paint logic: Only draw if the frame has actually changed
+        // This saves GPU cycles if we're between video frames
+        if (Math.abs(video.currentTime - lastPaintedTime.current) > 0.001) {
             const vWidth = video.videoWidth;
             const vHeight = video.videoHeight;
             const cWidth = canvas.width;
             const cHeight = canvas.height;
-            const vRatio = vWidth / vHeight;
-            const cRatio = cWidth / cHeight;
 
-            let dWidth, dHeight, dx, dy;
-            if (cRatio > vRatio) {
-                dWidth = cWidth;
-                dHeight = cWidth / vRatio;
-                dx = 0;
-                dy = (cHeight - dHeight) / 2;
-            } else {
-                dHeight = cHeight;
-                dWidth = cHeight * vRatio;
-                dx = (cWidth - dWidth) / 2;
-                dy = 0;
+            if (vWidth && vHeight) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const vRatio = vWidth / vHeight;
+                const cRatio = cWidth / cHeight;
+
+                let dWidth, dHeight, dx, dy;
+                if (cRatio > vRatio) {
+                    dWidth = cWidth;
+                    dHeight = cWidth / vRatio;
+                    dx = 0;
+                    dy = (cHeight - dHeight) / 2;
+                } else {
+                    dHeight = cHeight;
+                    dWidth = cHeight * vRatio;
+                    dx = (cWidth - dWidth) / 2;
+                    dy = 0;
+                }
+
+                ctx.drawImage(video, dx, dy, dWidth, dHeight);
+                lastPaintedTime.current = video.currentTime;
             }
-
-            ctx.drawImage(video, dx, dy, dWidth, dHeight);
-            lastPaintedTime.current = video.currentTime;
         }
 
         rafRef.current = requestAnimationFrame(renderFrame);
