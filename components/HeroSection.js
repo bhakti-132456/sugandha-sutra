@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { gsap } from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
-import MandalaHero from "./MandalaHero";
+import CelestialMandala from "./CelestialMandala";
 
 gsap.registerPlugin(ScrollToPlugin);
 
@@ -157,8 +157,8 @@ export default function HeroSection() {
                     />
                 </div>
 
-                {/* Mandala Interaction Layer */}
-                <MandalaHero />
+                {/* Celestial Mandala Interaction Layer */}
+                <CelestialMandala />
 
                 {/* Hero content — anti-grid, organic placement */}
                 <motion.div
