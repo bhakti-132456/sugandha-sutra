@@ -72,14 +72,16 @@ export function CelestialScene({
                 <DepthOfField
                     focusDistance={0.01}
                     focalLength={minimal ? 0.05 : 0.2} // Much more blur in minimal mode
-                    bokehScale={minimal ? 8 : 3} // Increased bokeh for soft background feel
+                    bokehScale={minimal ? 12 : 3} // Extreme bokeh for soft background feel
                 />
-                <Bloom
-                    luminanceThreshold={minimal ? 0.4 : 0.2}
-                    mipmapBlur
-                    intensity={minimal ? 0.8 : 1.2 + intensity * 0.4}
-                    radius={0.4}
-                />
+                {!minimal && (
+                    <Bloom
+                        luminanceThreshold={0.2}
+                        mipmapBlur
+                        intensity={1.2 + intensity * 0.4}
+                        radius={0.4}
+                    />
+                )}
                 {!minimal && (
                     <>
                         <Noise opacity={0.05} />
@@ -91,7 +93,7 @@ export function CelestialScene({
             {/* Dark Readability Overlay Mesh — subtle vignette for text */}
             <mesh position={[0, 0, 2.5]}>
                 <planeGeometry args={[viewport.width * 2, viewport.height * 2]} />
-                <meshBasicMaterial color="#000" transparent opacity={minimal ? 0.6 : 0.35} />
+                <meshBasicMaterial color="#000" transparent opacity={minimal ? 0.75 : 0.35} />
             </mesh>
         </>
     );
@@ -107,16 +109,16 @@ export default function CelestialMandala({ minimal = false }) {
             inset: 0,
             zIndex: 0,
             pointerEvents: "none",
-            background: "radial-gradient(circle at center, #08080a 0%, #000 100%)",
+            background: "radial-gradient(circle at center, #050505 0%, #000 100%)", // Warmer charcoal base
         }}>
-            {/* Subtle Noise Texture Overlay */}
+            {/* Subtle Noise Texture Overlay — Premium non-flat depth */}
             <div style={{
                 position: "absolute",
                 inset: 0,
-                opacity: 0.15,
+                opacity: 0.12,
                 backgroundImage: `url("https://grains.y78.io/noise.png")`, // Minimal grain texture
                 backgroundRepeat: "repeat",
-                mixBlendMode: "overlay",
+                mixBlendMode: "screen",
                 pointerEvents: "none"
             }} />
 
