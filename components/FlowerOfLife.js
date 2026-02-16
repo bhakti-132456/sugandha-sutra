@@ -111,9 +111,10 @@ export default function FlowerOfLife({ intensity = 0.5, glowColor }) {
                 <meshBasicMaterial
                     color={new THREE.Color(...glowRGB)}
                     transparent
-                    opacity={0.04 + intensity * 0.06}
+                    opacity={0.02 + intensity * 0.04}
                     wireframe
                     depthWrite={false}
+                    blending={THREE.AdditiveBlending}
                 />
             </mesh>
 
@@ -123,7 +124,7 @@ export default function FlowerOfLife({ intensity = 0.5, glowColor }) {
                 <meshBasicMaterial
                     color={new THREE.Color(...glowRGB)}
                     transparent
-                    opacity={0.15}
+                    opacity={0.08}
                     depthWrite={false}
                     blending={THREE.AdditiveBlending}
                 />

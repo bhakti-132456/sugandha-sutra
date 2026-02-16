@@ -4,10 +4,11 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useRef, Suspense } from "react";
 import * as THREE from "three";
 import { Float, PerspectiveCamera } from "@react-three/drei";
-import { EffectComposer, Bloom, Noise, Scanline } from "@react-three/postprocessing";
+import { EffectComposer, Bloom, Noise, Scanline, DepthOfField } from "@react-three/postprocessing";
 import FlowerOfLife from "./FlowerOfLife";
 import StarfieldParticles from "./StarfieldParticles";
 import NebulaBackground from "./NebulaShader";
+import SmokeTrail from "./SmokeTrail";
 
 function Scene() {
     const { mouse, viewport } = useThree();
@@ -42,10 +43,16 @@ function Scene() {
 
                     <StarfieldParticles count={3000} />
                     <NebulaBackground />
+                    <SmokeTrail count={50} />
                 </Suspense>
             </group>
 
             <EffectComposer disableNormalPass>
+                <DepthOfField
+                    focusDistance={0.01}
+                    focalLength={0.2}
+                    bokehScale={3}
+                />
                 <Bloom
                     luminanceThreshold={0.2}
                     mipmapBlur
@@ -55,6 +62,12 @@ function Scene() {
                 <Noise opacity={0.05} />
                 <Scanline opacity={0.03} />
             </EffectComposer>
+
+            {/* Dark Readability Overlay Mesh */}
+            <mesh position={[0, 0, 2]}>
+                <planeGeometry args={[viewport.width * 2, viewport.height * 2]} />
+                <meshBasicMaterial color="#000" transparent opacity={0.4} />
+            </mesh>
 
             {/* Dynamic Glow Orbs for additional depth */}
             <mesh position={[-5, 2, -15]} scale={5}>

@@ -5,23 +5,23 @@ import { extend } from "@react-three/fiber";
 import * as THREE from "three";
 
 const NebulaShaderMaterial = shaderMaterial(
-    {
-        uTime: 0,
-        uColor1: new THREE.Color("#1a0b2e"), // Deep Indigo
-        uColor2: new THREE.Color("#4a1e9e"), // Violet
-        uColor3: new THREE.Color("#886100"), // Muted Gold
-        uOpacity: 0.4,
-    },
-    // Vertex Shader
-    `
+  {
+    uTime: 0,
+    uColor1: new THREE.Color("#0a0612"), // Darker Indigo
+    uColor2: new THREE.Color("#2a125a"), // Muted Violet
+    uColor3: new THREE.Color("#443300"), // Very Muted Gold
+    uOpacity: 0.25, // Lower base opacity
+  },
+  // Vertex Shader
+  `
   varying vec2 vUv;
   void main() {
     vUv = uv;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
   `,
-    // Fragment Shader
-    `
+  // Fragment Shader
+  `
   uniform float uTime;
   uniform vec3 uColor1;
   uniform vec3 uColor2;
@@ -73,10 +73,10 @@ const NebulaShaderMaterial = shaderMaterial(
 extend({ NebulaShaderMaterial });
 
 export default function NebulaBackground() {
-    return (
-        <mesh scale={[20, 20, 1]} position={[0, 0, -10]}>
-            <planeGeometry args={[2, 2]} />
-            <nebulaShaderMaterial transparent depthWrite={false} />
-        </mesh>
-    );
+  return (
+    <mesh scale={[20, 20, 1]} position={[0, 0, -10]}>
+      <planeGeometry args={[2, 2]} />
+      <nebulaShaderMaterial transparent depthWrite={false} />
+    </mesh>
+  );
 }
