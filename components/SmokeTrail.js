@@ -32,9 +32,9 @@ export default function SmokeTrail({ count = 80 }) {
         return new THREE.ShaderMaterial({
             transparent: true,
             depthWrite: false,
-            blending: THREE.AdditiveBlending,
+            blending: THREE.NormalBlending, // Switch to matte ink-like blending
             uniforms: {
-                uColor: { value: new THREE.Color("#666666") }, // Sophisticated Muted Grey
+                uColor: { value: new THREE.Color("#555555") }, // Darker, matte smoke
                 uTime: { value: 0 },
             },
             vertexShader: `
@@ -44,7 +44,7 @@ export default function SmokeTrail({ count = 80 }) {
           vLife = life;
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
           // Thinner trail: reduced base size
-          float size = 25.0 * (1.0 - life) * (1.0 - abs(life - 0.5) * 2.0);
+          float size = 20.0 * (1.0 - life) * (1.0 - abs(life - 0.5) * 2.0);
           gl_PointSize = size * (300.0 / -mvPosition.z);
           gl_Position = projectionMatrix * mvPosition;
         }
@@ -56,8 +56,8 @@ export default function SmokeTrail({ count = 80 }) {
           float dist = distance(gl_PointCoord, vec2(0.5));
           if (dist > 0.5) discard;
           
-          // Realistic smoke falloff and grey tones
-          float alpha = smoothstep(0.5, 0.1, dist) * (1.0 - vLife) * 0.12;
+          // Absolute stillness: linear alpha falloff with NO shimmer/noise
+          float alpha = smoothstep(0.5, 0.1, dist) * (1.0 - vLife) * 0.10;
           gl_FragColor = vec4(uColor, alpha);
         }
       `

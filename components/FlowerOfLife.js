@@ -96,14 +96,24 @@ export default function FlowerOfLife({ intensity = 0.5, glowColor, minimal = fal
             {circlePositions.map((pos, i) => (
                 <mesh key={i} position={[pos[0], pos[1], 0]}>
                     <torusGeometry args={[0.55, minimal ? 0.0015 : 0.008, 16, 64]} />
-                    <sacredGlowMaterial
-                        ref={i === 0 ? materialRef : undefined}
-                        transparent
-                        side={THREE.DoubleSide}
-                        depthWrite={false}
-                        blending={THREE.AdditiveBlending}
-                        opacity={minimal ? 0.15 : 1.0}
-                    />
+                    {minimal ? (
+                        <meshBasicMaterial
+                            color={new THREE.Color(...glowRGB)}
+                            transparent
+                            opacity={0.10} // Barely visible matte thread
+                            depthWrite={false}
+                            blending={THREE.NormalBlending} // Remove additive glow
+                        />
+                    ) : (
+                        <sacredGlowMaterial
+                            ref={i === 0 ? materialRef : undefined}
+                            transparent
+                            side={THREE.DoubleSide}
+                            depthWrite={false}
+                            blending={THREE.AdditiveBlending}
+                            opacity={1.0}
+                        />
+                    )}
                 </mesh>
             ))}
 

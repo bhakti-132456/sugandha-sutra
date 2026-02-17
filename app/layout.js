@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,6 +18,9 @@ export const metadata = {
   title: "Sugandha Sutra — The Vessel of Your Becoming",
   description:
     "A curated healing ecosystem where ancient Vedic aromatics meet the future of computational ritual. Experience the transcendence of smell, sound, and sight.",
+  icons: {
+    icon: "/favicon.svg",
+  },
   keywords: [
     "Vedic aromatics",
     "incense",
@@ -42,6 +46,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Navbar />
         {/* Subtle film-grain noise overlay */}
         <div className="noise-overlay" aria-hidden="true" />
         {children}

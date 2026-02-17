@@ -309,19 +309,21 @@ export default function VideoScrubRitual() {
                     }}
                 />
 
-                {/* ── Left Narrative Panel ── */}
+                {/* ── Mobile-Specific Gradient Overlay ── */}
                 <div
+                    className="mobile-overlay"
                     style={{
                         position: "absolute",
-                        top: "50%",
-                        left: "5%",
-                        transform: "translateY(-50%)",
-                        zIndex: 10,
-                        width: "35%",
-                        maxWidth: "420px",
+                        inset: 0,
+                        zIndex: 3,
+                        background: "linear-gradient(to top, var(--bg-void) 0%, transparent 60%, var(--bg-void) 100%)",
                         pointerEvents: "none",
+                        opacity: 0,
                     }}
-                >
+                />
+
+                {/* ── Left Narrative Panel ── */}
+                <div className="narrative-panel">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={activePhase}
@@ -360,22 +362,23 @@ export default function VideoScrubRitual() {
                                 fontSize: "clamp(2rem, 3vw, 2.8rem)",
                                 fontFamily: "var(--font-heading)",
                                 fontWeight: 300,
-                                color: "var(--fg-primary)",
+                                color: "var(--text-primary)",
                                 lineHeight: 1.1,
                             }}>
                                 {phase.title}
                             </h3>
                             <p style={{
                                 fontSize: "1rem",
-                                color: "var(--fg-muted)",
+                                color: "var(--text-secondary)",
                                 fontStyle: "italic",
+                                opacity: 0.8
                             }}>
                                 {phase.subtitle}
                             </p>
                             <p style={{
                                 fontSize: "1rem",
                                 lineHeight: "1.7",
-                                color: "var(--fg-secondary)",
+                                color: "var(--text-secondary)",
                                 borderLeft: `2px solid ${phase.accent}`,
                                 paddingLeft: "1.25rem",
                                 background: "linear-gradient(90deg, rgba(0,0,0,0.2), transparent)",
@@ -387,25 +390,7 @@ export default function VideoScrubRitual() {
                 </div>
 
                 {/* ── Right Interaction Panel ── */}
-                <div
-                    style={{
-                        position: "absolute",
-                        top: "50%",
-                        right: "5%",
-                        transform: "translateY(-50%)",
-                        zIndex: 10,
-                        width: "300px",
-                        background: "rgba(10, 10, 12, 0.4)",
-                        backdropFilter: "blur(12px)",
-                        border: "1px solid rgba(255, 255, 255, 0.05)",
-                        borderRadius: "20px",
-                        padding: "1.5rem",
-                        boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "1.25rem",
-                    }}
-                >
+                <div className="interaction-panel">
                     <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                         <button
                             onClick={toggleMute}
@@ -416,7 +401,7 @@ export default function VideoScrubRitual() {
                                 borderRadius: "50%",
                                 background: "rgba(255,255,255,0.05)",
                                 border: `1px solid ${isMuted ? 'rgba(255,255,255,0.1)' : phase.accent}`,
-                                color: isMuted ? "var(--fg-muted)" : phase.accent,
+                                color: isMuted ? "var(--text-muted)" : phase.accent,
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
@@ -486,14 +471,74 @@ export default function VideoScrubRitual() {
                             <path d="M5 12H19M19 12L12 5M19 12L12 19" />
                         </svg>
                     </button>
-
-                    <style jsx>{`
-                        @keyframes pulse-bar {
-                            0% { height: 20%; }
-                            100% { height: 100%; }
-                        }
-                    `}</style>
                 </div>
+
+                <style jsx>{`
+                    .narrative-panel {
+                        position: absolute;
+                        top: 50%;
+                        left: 5%;
+                        transform: translateY(-50%);
+                        z-index: 10;
+                        width: 35%;
+                        max-width: 420px;
+                        pointer-events: none;
+                    }
+
+                    .interaction-panel {
+                        position: absolute;
+                        top: 50%;
+                        right: 5%;
+                        transform: translateY(-50%);
+                        z-index: 10;
+                        width: 300px;
+                        background: rgba(10, 10, 12, 0.4);
+                        backdrop-filter: blur(12px);
+                        -webkit-backdrop-filter: blur(12px);
+                        border: 1px solid rgba(255, 255, 255, 0.05);
+                        border-radius: 20px;
+                        padding: 1.5rem;
+                        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+                        display: flex;
+                        flex-direction: column;
+                        gap: 1.25rem;
+                    }
+
+                    @keyframes pulse-bar {
+                        0% { height: 20%; }
+                        100% { height: 100%; }
+                    }
+
+                    @media (max-width: 768px) {
+                        .mobile-overlay {
+                            opacity: 1 !important;
+                        }
+
+                        .narrative-panel {
+                            width: 90%;
+                            left: 50%;
+                            top: 40%;
+                            transform: translate(-50%, -50%);
+                            max-width: none;
+                            text-align: center;
+                        }
+
+                        .narrative-panel :global(p) {
+                            border-left: none !important;
+                            padding-left: 0 !important;
+                            background: none !important;
+                        }
+
+                        .interaction-panel {
+                            width: 90%;
+                            right: 50%;
+                            top: auto;
+                            bottom: 120px;
+                            transform: translateX(50%);
+                            background: rgba(10, 10, 12, 0.6);
+                        }
+                    }
+                `}</style>
 
                 {/* ── Scroll Progress Arc ── */}
                 <div
