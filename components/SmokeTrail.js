@@ -65,15 +65,38 @@ export default function SmokeTrail({ count = 80 }) {
     }, []);
 
     const lastPos = useRef(new THREE.Vector2(0, 0));
+    const isPressed = useRef(false);
+    const holdTime = useRef(0);
+
+    // Track pointer state globally to allow interaction across the scene
+    useMemo(() => {
+        if (typeof window === "undefined") return;
+
+        const handleDown = () => (isPressed.current = true);
+        const handleUp = () => {
+            isPressed.current = false;
+            holdTime.current = 0;
+        };
+
+        window.addEventListener("pointerdown", handleDown);
+        window.addEventListener("pointerup", handleUp);
+        window.addEventListener("pointercancel", handleUp);
+
+        return () => {
+            window.removeEventListener("pointerdown", handleDown);
+            window.removeEventListener("pointerup", handleUp);
+            window.removeEventListener("pointercancel", handleUp);
+        };
+    }, []);
 
     useFrame((state, delta) => {
         if (!pointsRef.current) return;
         material.uniforms.uTime.value = state.clock.elapsedTime;
 
-        // Current cursor position in 3D world coordinates
+        // Current cursor/touch position in 3D world coordinates
         const x = (mouse.x * viewport.width) / 2;
         const y = (mouse.y * viewport.height) / 2;
-        const currentMouse = new THREE.Vector2(x, y);
+        const currentPos = new THREE.Vector2(x, y);
 
         // Update existing particles
         const positions = pointsRef.current.geometry.attributes.position.array;
@@ -86,30 +109,42 @@ export default function SmokeTrail({ count = 80 }) {
 
                 // Drift: particles move slightly upward/randomly as they fade
                 const idx = i * 3;
-                positions[idx] += particles.vel[i * 2] * delta * 0.3;
-                positions[idx + 1] += (particles.vel[i * 2 + 1] + 0.1) * delta * 0.3; // Slight upward drift
+                positions[idx] += particles.vel[i * 2] * delta * 0.4;
+                positions[idx + 1] += (particles.vel[i * 2 + 1] + 0.15) * delta * 0.4; // Upward drift
             }
         }
 
-        // Spawn logic — higher precision spawn
-        // We spawn even on small movements to ensure it "follows" the pointer explicitly
-        const dist = currentMouse.distanceTo(lastPos.current);
-        if (dist > 0.02) {
-            // Find inactive particle
+        // Interaction Logic
+        if (isPressed.current) {
+            holdTime.current += delta;
+        }
+
+        const dist = currentPos.distanceTo(lastPos.current);
+        // Spawn on movement OR if holding (to emulate constant smoke)
+        const shouldSpawn = dist > 0.015 || (isPressed.current && state.clock.elapsedTime % 0.05 < delta);
+
+        if (shouldSpawn) {
+            // How much to "perturb" the smoke based on hold duration
+            const agitation = Math.min(1.0, holdTime.current * 0.5);
+            const spread = 0.05 + agitation * 0.2;
+
+            // Find inactive particle to spawn
             for (let i = 0; i < count; i++) {
                 if (life[i] < 0) {
                     life[i] = 0;
-                    positions[i * 3] = x;
-                    positions[i * 3 + 1] = y;
+                    // Spawn with slight jitter for organic look
+                    positions[i * 3] = x + (Math.random() - 0.5) * spread;
+                    positions[i * 3 + 1] = y + (Math.random() - 0.5) * spread;
                     positions[i * 3 + 2] = 0;
 
-                    // Muted random drift velocity
-                    particles.vel[i * 2] = (Math.random() - 0.5) * 0.1;
-                    particles.vel[i * 2 + 1] = (Math.random() - 0.5) * 0.1;
+                    // Compute velocity: base upward drift + random turbulence
+                    // Turbulence increases the longer you hold/touch
+                    particles.vel[i * 2] = (Math.random() - 0.5) * (0.1 + agitation * 0.4);
+                    particles.vel[i * 2 + 1] = (Math.random() - 0.5) * (0.1 + agitation * 0.2);
                     break;
                 }
             }
-            lastPos.current.copy(currentMouse);
+            lastPos.current.copy(currentPos);
         }
 
         pointsRef.current.geometry.attributes.position.needsUpdate = true;
